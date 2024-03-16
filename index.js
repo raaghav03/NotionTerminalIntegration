@@ -2,25 +2,64 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
+const rl = require("readline").createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
 // Notion SDK
 const { Client } = require("@notionhq/client");
 
-const notion = new Client({ auth: process.env.NOTION_KEY });
+const notion = new Client({
+  auth: process.env.NOTION_KEY,
+});
 
-// async function listDatabaseItems() {
-//   const response = await notion.databases.query({
-//     database_id: process.env.NOTION_DATABASE_ID,
-//   });
+async function listDatabaseItems() {
+  const response = await notion.databases.query({
+    database_id: process.env.NOTION_DATABASE_ID,
+  });
 
-//   response.results.forEach((page) => {
-//     const todoItem = page.properties["Todo Item"].title[0].plain_text;
-//     const priority = page.properties["Priority"].select.name;
-//     const dueDate=page.properties["Due Date"].date.start;
+  response.results.forEach((page) => {
+    const todoItem = page.properties["Todo Item"].title[0].plain_text;
+    const priorityLevel = page.properties["Priority"].select["name"];
+    const taskDate = page.properties["Due Date"].date["start"];
 
-//      console.log(`The priority of the task - ${todoItem} is ${priority} and date is ${dueDate}`);
-//   });
-// }
+    // console.log(
+    //   `task name is ${todoItem} and priority level is ${priorityLevel}`
+    // );
+  });
+}
+async function addItemstoDatabase() {
+  const response = await notion.databases.query({
+    database_id: process.env.NOTION_DATABASE_ID,
+  });
 
-let taskName=prompt("What is the task you want to add")
-
-// listDatabaseItems();
+  response.results.forEach((page) => {
+    const todoItem = page.properties["Todo Item"].title;
+    // console.log(todoItem);
+  });
+  rl.question("What is the task you want to add ? \n ", async (taskName) => {
+    try {
+      const addItem = await notion.pages.create({
+        parent: { database_id: process.env.NOTION_DATABASE_ID },
+        properties: {
+          "Todo Item": {
+            title: [
+              {
+                text: {
+                  content: taskName,
+                },
+              },
+            ],
+          },
+        },
+      });
+      console.log(`${taskName} is added to the db`);
+    } catch (error) {
+      console.error("Error adding the task to the database:", error);
+    } finally {
+      rl.close(); // Ensure readline is closed after the operation
+    }
+  });
+}
+addItemstoDatabase();
