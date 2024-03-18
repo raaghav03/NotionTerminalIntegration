@@ -22,7 +22,7 @@ This CLI tool enables interaction with a Notion database, allowing users to list
 <h3>Clone the Repository</h3>
 
 ```
-git clone https://your-repository-link-here.git
+git clone https://github.com/raaghav03/NotionTerminalIntegration.git
 cd NotionCLI
 ```
 <h3>Install Dependencies</h3>
