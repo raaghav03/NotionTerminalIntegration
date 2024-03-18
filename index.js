@@ -1,11 +1,12 @@
 require("dotenv").config();
-const express = require("express");
-const app = express();
 
 const rl = require("readline").createInterface({
   input: process.stdin,
   output: process.stdout,
 });
+
+// importing inquire library to ease out command line questions
+const inquirer = require("inquirer");
 
 // Notion SDK
 const { Client } = require("@notionhq/client");
@@ -22,46 +23,67 @@ async function listDatabaseItems() {
   response.results.forEach((page) => {
     const todoItem = page.properties["Todo Item"].title[0].plain_text;
     const priorityLevel = page.properties["Priority"].select.name;
-    const taskDate = page.properties["Due Date"].date["start"];
-    console.log(
-      `${todoItem} is a ${priorityLevel} priority and has to be done by ${taskDate}`
-    );
+    // const taskDate = page.properties["Due Date"].date["start"];
+    // console.log(
+    //   `${todoItem} is a ${priorityLevel} priority and has to be done by ${taskDate}`
+    // );
+
+    console.log(priorityLevel);
   });
 }
 
-listDatabaseItems();
+const inquirer = require("inquirer");
 
-// async function addItemstoDatabase() {
-//   const response = await notion.databases.query({
-//     database_id: process.env.NOTION_DATABASE_ID,
-//   });
+async function addItemstoDatabase() {
+  const answers = await inquirer.prompt([
+    {
+      type: "input",
+      message: "What is the task you want to add?",
+      name: "taskName",
+    },
+    {
+      type: "list",
+      message: "What is the level of priority of this task?",
+      name: "priorityLevel",
+      choices: ["low", "medium", "hard"],
+    },
+    {
+      type: "input",
+      message: "Enter the date for the task (YYYY-MM-DD)",
+      name: "taskDate",
+    },
+  ]);
 
-//   response.results.forEach((page) => {
-//     const todoItem = page.properties["Todo Item"].title;
-//     // console.log(todoItem);
-//   });
-//   rl.question("What is the task you want to add ? \n ", async (taskName) => {
-//     try {
-//       const addItem = await notion.pages.create({
-//         parent: { database_id: process.env.NOTION_DATABASE_ID },
-//         properties: {
-//           "Todo Item": {
-//             title: [
-//               {
-//                 text: {
-//                   content: taskName,
-//                 },
-//               },
-//             ],
-//           },
-//         },
-//       });
-//       console.log(`${taskName} is added to the db`);
-//     } catch (error) {
-//       console.error("Error adding the task to the database:", error);
-//     } finally {
-//       rl.close(); // Ensure readline is closed after the operation
-//     }
-//   });
-// }
-// addItemstoDatabase();
+  try {
+    const addItem = await notion.pages.create({
+      parent: { database_id: process.env.NOTION_DATABASE_ID },
+      properties: {
+        "Todo Item": {
+          title: [
+            {
+              text: {
+                content: answers.taskName,
+              },
+            },
+          ],
+        },
+        Priority: {
+          select: {
+            name: answers.priorityLevel,
+          },
+        },
+        "Due Date": {
+          date: {
+            start: answers.taskDate,
+          },
+        },
+      },
+    });
+    console.log(
+      `${answers.taskName} is added to the database with ${answers.priorityLevel} priority and date ${answers.taskDate}.`
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+addItemstoDatabase();
