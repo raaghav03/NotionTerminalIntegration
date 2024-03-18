@@ -1,3 +1,13 @@
+<h1>Notion CLI Tool</h1>
+
+This CLI tool enables interaction with a Notion database, allowing users to list items or add new tasks directly from the terminal. It leverages the Notion SDK and the inquirer package for an interactive command-line experience.
+
+<h2>Features</h2>
+<ul>
+<li>**List Database Items:** View a list of tasks, their priorities, and due dates from your Notion database.</li>
+<li>**Add Items to Database:** Easily add new tasks with priorities and due dates to your Notion database.</li>
+</ul>
+
 Getting Started
 Prerequisites
 Node.js installed on your system.
