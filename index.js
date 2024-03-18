@@ -15,6 +15,22 @@ const notion = new Client({
   auth: process.env.NOTION_KEY,
 });
 
+function initialQuery() {
+  const options = [
+    {
+      type: "list",
+      name: "initialOption",
+      message: "What do you want to do ",
+      choices: ["list", "add"],
+    },
+  ];
+  inquirer.prompt(options).then((options) => {
+    if (options.initialOption == "list") listDatabaseItems();
+    else if (options.initialOption == "add") addItemstoDatabase();
+  });
+}
+initialQuery();
+
 async function listDatabaseItems() {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
@@ -23,16 +39,12 @@ async function listDatabaseItems() {
   response.results.forEach((page) => {
     const todoItem = page.properties["Todo Item"].title[0].plain_text;
     const priorityLevel = page.properties["Priority"].select.name;
-    // const taskDate = page.properties["Due Date"].date["start"];
-    // console.log(
-    //   `${todoItem} is a ${priorityLevel} priority and has to be done by ${taskDate}`
-    // );
-
-    console.log(priorityLevel);
+    const taskDate = page.properties["Due Date"].date["start"];
+    console.log(
+      `${todoItem} is a ${priorityLevel} priority and has to be done by ${taskDate} \n`
+    );
   });
 }
-
-const inquirer = require("inquirer");
 
 async function addItemstoDatabase() {
   const answers = await inquirer.prompt([
@@ -86,4 +98,3 @@ async function addItemstoDatabase() {
     console.log(error);
   }
 }
-addItemstoDatabase();
