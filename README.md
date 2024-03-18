@@ -56,7 +56,7 @@ Follow the prompts to list database items or add a new task.
 When choosing to add a new task, you'll be prompted for:
 <ul>
 <li>The task name.</li>
-</li>The priority level (low, medium, hard).</li>
+<li>The priority level (low, medium, hard).</li>
 <li>The due date in the format YYYY-MM-DD.</li>
   </ul>
 <h3>Listing Tasks</h3>
